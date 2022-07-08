@@ -2,15 +2,21 @@ package sub
 
 import (
 	"fmt"
+	"io"
+	"net/http"
+	"testing"
+
 	"github.com/biter777/countries"
 	emojiflag "github.com/jayco/go-emoji-flag"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"io"
-	"net/http"
-	"os"
-	"path/filepath"
-	"testing"
+)
+
+const (
+	// TAGSSRSubsLink TAG的SSR订阅地址
+	TAGSSRSubsLink = "https://subscribe.hlasw.com/link/HheFeZMnfkMide9X?sub=1&extend=1"
+	// TAGSSSubsLink TAG的SS订阅地址
+	TAGSSSubsLink = "https://newsubscribe.hlasw.com/api/v1/client/subscribe?token=93cb6ac0990ea0c78ee3af284a4c9c0a"
 )
 
 func TestRewrite(t *testing.T) {
@@ -18,20 +24,9 @@ func TestRewrite(t *testing.T) {
 	// read nodes from subLink
 	res, err := http.Get(link)
 	require.NoError(t, err)
-	remote, err := decodeConfig(res)
+	remote, err := decodeClashConfig(res)
 	require.NoError(t, err)
 	assert.NoError(t, Rewrite(remote, io.Discard))
-}
-
-func TestOverwriteConfigByFilename(t *testing.T) {
-	link := "https://subscribe.hlasw.com/link/vCddKFHm6Tljaz0X?clash=2"
-	home, _ := os.UserHomeDir()
-	out := filepath.Join(home, ".config/clash/profiles/config_generated.yaml")
-	processors := []Processor{
-		AddHosts(DNSMapping{"*.xuanlingasset.com": "10.168.1.185"}), // 内网域名寻址,指向NGINX服务器
-		AddRuleIPCIDR("10.168.1.0/24", DIRECT),                      // 内网网段
-	}
-	assert.NoError(t, OverwriteConfigByFilename(link, out, processors...))
 }
 
 func TestGetEmojiFlag(t *testing.T) {
@@ -58,12 +53,6 @@ func TestGetCountryCode(t *testing.T) {
 	}
 }
 
-func TestGetRemainingDataClash(t *testing.T) {
-	usage, err := GetRemainingDataClash(TAGClashSubsLink)
-	assert.NoError(t, err)
-	fmt.Println(usage)
-}
-
 func TestDecodeSSR(t *testing.T) {
 	res, err := http.Get(TAGSSRSubsLink)
 	assert.NoError(t, err)
@@ -80,7 +69,7 @@ func TestDecodeSS(t *testing.T) {
 	items, err := DecodeSS(res)
 	assert.NoError(t, err)
 	for _, line := range items {
-		fmt.Println(line.Server, " ", line.Method)
+		fmt.Printf("%+v\n", line)
 	}
 }
 

@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -221,7 +220,7 @@ var (
 			mediaKey:  "Pornhub",
 			countries: []countries.CountryCode{countries.US, countries.HK},
 		},
-		{ // b站港澳台
+		{
 			mediaKey:  "Bilibili",
 			countries: []countries.CountryCode{countries.TW, countries.HK},
 		},
@@ -377,47 +376,12 @@ type DNSSetting struct {
 
 type RuleSetTreatment func(r RuleProvider) RuleProvider
 
-var (
-	// these are TAG specific names, if you use other providers, you should write
-	// your own regexp to match country code
-	// like "As 以色列 01 IL 2倍率"
-	// like "NA 美国 (08) (底特律) US 2倍率"
-	nodeRegex            = regexp.MustCompile(`(?:\w\w )?(\p{Han}+)\s?(\d+)?( \p{Han}+)? (\w\w) ([\d.]+)(?:倍率|x)`)
-	nodeRegexExpectMatch = 6
-)
-
 func extractCountryFromNodeName(node string) countries.CountryCode {
-	matches := nodeRegex.FindStringSubmatch(node)
-	if len(matches) == nodeRegexExpectMatch {
-		cc := matches[4]
-		return countries.ByName(cc)
-	} else if anyTwoCharCode.MatchString(node) {
+	if anyTwoCharCode.MatchString(node) {
 		return countries.ByName(anyTwoCharCode.FindStringSubmatch(node)[1])
 	}
 	log.Printf("cannot match country code: %s", node)
 	return countries.Unknown
-}
-
-func OverwriteConfigByFilename(subLink string, out string, proc ...Processor) error {
-	outFile, err := os.OpenFile(out, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
-	if err != nil {
-		return err
-	}
-	// read nodes from subLink
-	res, err := http.Get(subLink)
-	if err != nil {
-		return err
-	}
-	remote, err := decodeConfig(res)
-	_ = res.Body.Close()
-	if err != nil {
-		return err
-	}
-	err = Rewrite(remote, outFile, proc...)
-	if err != nil {
-		return err
-	}
-	return outFile.Close()
 }
 
 // Clash规则
@@ -516,7 +480,7 @@ func mediaGroup(key string, emojiPrefix emoji.Emoji, countries ...countries.Coun
 	return pg
 }
 
-func decodeConfig(res *http.Response) (ClashSub, error) {
+func decodeClashConfig(res *http.Response) (ClashSub, error) {
 	var remote ClashSub
 	err := yaml.NewDecoder(res.Body).Decode(&remote)
 	return remote, err
@@ -740,10 +704,7 @@ func prependEmoji(sub *ClashSub) {
 	for i := range sub.Proxies {
 		name := sub.Proxies[i].Name
 		var countryCode string
-		if matches := nodeRegex.FindStringSubmatch(name); len(matches) >= nodeRegexExpectMatch {
-			//countryName = matches[1]
-			countryCode = matches[3]
-		} else if anyTwoCharCode.MatchString(name) {
+		if anyTwoCharCode.MatchString(name) {
 			countryCode = anyTwoCharCode.FindStringSubmatch(name)[1]
 		} else {
 			log.Printf("cannot match country code: %s", name)

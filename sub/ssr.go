@@ -13,22 +13,11 @@ import (
 	"time"
 )
 
-const (
-	// TAGSSRSubsLink TAG的SSR订阅地址
-	TAGSSRSubsLink = "https://subscribe.hlasw.com/link/HheFeZMnfkMide9X?sub=1&extend=1"
-	// TAGSSSubsLink TAG的SS订阅地址
-	TAGSSSubsLink = "https://newsubscribe.tagonline.asia/api/v1/client/subscribe?token=882a904ce0047ff6ea056e40cbdf2b85"
-	// TAGClashSubsLink TAG的Clash订阅地址
-	TAGClashSubsLink = "https://subscribe.hlasw.com/link/vCddKFHm6Tljaz0X?clash=2&extend=1"
-	// SpadeClashSubsLink Spade的Clash订阅地址
-	SpadeClashSubsLink = "https://stc-spadesdns.com/link/ZpgSU50QAqvzJq5d?clash=3"
-)
-
 // ssr订阅节点格式
 var (
 	// group[1]是firstPattern格式数据的base64 encode
 	ssrPattern   = regexp.MustCompile("ssr://(.*)")
-	firstPattern = regexp.MustCompile("(.*):(.*):(.*):(.*):(.*):(.*)/\\?")
+	firstPattern = regexp.MustCompile(`(.*):(.*):(.*):(.*):(.*):(.*)/\?"`)
 )
 
 // GetRemainingDataSSR 获得机场剩余流量, SSR格式配置文件

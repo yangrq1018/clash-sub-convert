@@ -13,11 +13,21 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/yangrq1018/clash-sub-convert/sub"
-	"github.com/yangrq1018/clash-sub-convert/util"
 	"gopkg.in/yaml.v3"
 )
 
 var fileProcessors []sub.Processor
+var CONFIG_FILE = firstString(os.Getenv("CONFIG_FILE"), "config.yaml")
+
+// FirstString returns the first non-empty string
+func firstString(ss ...string) string {
+	for i := range ss {
+		if ss[i] != "" {
+			return ss[i]
+		}
+	}
+	return ""
+}
 
 func copyFileProcessors() []sub.Processor {
 	var cp = make([]sub.Processor, len(fileProcessors))
@@ -35,9 +45,9 @@ func splitKeyValue(s string, delim string) (k, v string) {
 	return
 }
 
-func initProcessorsFromFile() error {
+func readConfig() error {
 	var processors = make([]sub.Processor, 0)
-	f, err := os.Open(util.FirstString(os.Getenv("CONFIG_FILE"), "config.yaml"))
+	f, err := os.Open(CONFIG_FILE)
 	if err != nil {
 		return err
 	}
@@ -94,7 +104,7 @@ func setHeader(res *http.Response, writer http.ResponseWriter, attachment bool) 
 }
 
 func main() {
-	err := initProcessorsFromFile()
+	err := readConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -138,7 +148,7 @@ func main() {
 					Port:     proxy.Port,
 					Cipher:   proxy.Method,
 					Password: proxy.Password,
-					TFO:      true, // where are these coming from?
+					TFO:      true,
 					UDP:      true,
 				}
 				switch proxy.Plugins["plugin"] {
@@ -199,7 +209,7 @@ func main() {
 		}).Infof("fetch remote sub")
 		return
 	})
-	port := util.FirstString(os.Getenv("PORT"), "8080")
+	port := firstString(os.Getenv("PORT"), "8080")
 	log.Infof("binding to port %s", port)
 	if err = e.Start(":" + port); err != nil {
 		log.Fatal(err)
