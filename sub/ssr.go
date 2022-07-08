@@ -16,22 +16,10 @@ import (
 // ssr订阅节点格式
 var (
 	// group[1]是firstPattern格式数据的base64 encode
-	ssrPattern   = regexp.MustCompile("ssr://(.*)")
-	firstPattern = regexp.MustCompile(`(.*):(.*):(.*):(.*):(.*):(.*)/\?"`)
+	ssrPattern = regexp.MustCompile("ssr://(.*)")
+	// match everything before the URL slash
+	firstPattern = regexp.MustCompile(`(.*):(.*):(.*):(.*):(.*):(.*)/\?`)
 )
-
-// GetRemainingDataSSR 获得机场剩余流量, SSR格式配置文件
-func GetRemainingDataSSR(subsLink string) (string, error) {
-	res, err := http.Get(subsLink)
-	if err != nil {
-		return "", err
-	}
-	items, err := DecodeSSR(res)
-	if err != nil {
-		return "", err
-	}
-	return getRemainingData(items), nil
-}
 
 type ClashDataUsage struct {
 	Upload   int
@@ -136,6 +124,9 @@ func ssrToClash(line []byte) (*SSRItem, error) {
 	}
 
 	match := firstPattern.FindSubmatch(decodedURL)
+	if len(match) == 0 {
+		return nil, fmt.Errorf("failed to match firstPattern")
+	}
 	// 密码也要解码
 	password, err := decodeBase64(match[6], base64.RawURLEncoding)
 	if err != nil {
@@ -196,14 +187,4 @@ func getParam(u string, item *SSRItem) error {
 	item.Remarks = mustDecodeBase64(q.Get("remarks"), base64.RawURLEncoding)
 	item.Group = mustDecodeBase64(q.Get("group"), base64.RawURLEncoding)
 	return nil
-}
-
-func getRemainingData(items []SSRItem) string {
-	var text strings.Builder
-	for _, item := range items {
-		if item.Server == "www.google.com" && !strings.Contains(item.Remarks, "官网") {
-			text.WriteString(item.Remarks + "\n")
-		}
-	}
-	return text.String()
 }

@@ -1,7 +1,6 @@
 package sub
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"testing"
@@ -13,16 +12,13 @@ import (
 )
 
 const (
-	// TAGSSRSubsLink TAG的SSR订阅地址
-	TAGSSRSubsLink = "https://subscribe.hlasw.com/link/HheFeZMnfkMide9X?sub=1&extend=1"
-	// TAGSSSubsLink TAG的SS订阅地址
-	TAGSSSubsLink = "https://newsubscribe.hlasw.com/api/v1/client/subscribe?token=93cb6ac0990ea0c78ee3af284a4c9c0a"
+	clashLink = "https://stc-anycast.com/link/ABRHuzP2QGPxHHZm?sub=2&client=clash"
+	ssrLink   = "https://stc-anycast.com/link/ABRHuzP2QGPxHHZm?sub=2"
+	ssLink    = "https://newsubscribe.hlasw.com/api/v1/client/subscribe?token=93cb6ac0990ea0c78ee3af284a4c9c0a"
 )
 
 func TestRewrite(t *testing.T) {
-	link := "https://subscribe.hlasw.com/link/vCddKFHm6Tljaz0X?clash=2"
-	// read nodes from subLink
-	res, err := http.Get(link)
+	res, err := http.Get(clashLink)
 	require.NoError(t, err)
 	remote, err := decodeClashConfig(res)
 	require.NoError(t, err)
@@ -34,7 +30,7 @@ func TestGetEmojiFlag(t *testing.T) {
 		"KH", // 柬埔寨
 	} {
 		flag := emojiflag.GetFlag(code)
-		fmt.Printf("%s %s\n", code, flag)
+		t.Logf("%s %s", code, flag)
 	}
 }
 
@@ -54,27 +50,21 @@ func TestGetCountryCode(t *testing.T) {
 }
 
 func TestDecodeSSR(t *testing.T) {
-	res, err := http.Get(TAGSSRSubsLink)
+	res, err := http.Get(ssrLink)
 	assert.NoError(t, err)
 	items, err := DecodeSSR(res)
 	assert.NoError(t, err)
 	for _, line := range items {
-		fmt.Printf("%+v\n", line)
+		t.Logf("%+v", line)
 	}
 }
 
 func TestDecodeSS(t *testing.T) {
-	res, err := http.Get(TAGSSSubsLink)
+	res, err := http.Get(ssLink)
 	assert.NoError(t, err)
 	items, err := DecodeSS(res)
 	assert.NoError(t, err)
 	for _, line := range items {
-		fmt.Printf("%+v\n", line)
+		t.Logf("%+v", line)
 	}
-}
-
-func TestGetRemainingDataSSR(t *testing.T) {
-	text, err := GetRemainingDataSSR(TAGSSRSubsLink)
-	assert.NoError(t, err)
-	fmt.Println(text)
 }
