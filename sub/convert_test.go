@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/biter777/countries"
-	emojiflag "github.com/jayco/go-emoji-flag"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -23,15 +22,6 @@ func TestRewrite(t *testing.T) {
 	remote, err := decodeClashConfig(res)
 	require.NoError(t, err)
 	assert.NoError(t, Rewrite(remote, io.Discard))
-}
-
-func TestGetEmojiFlag(t *testing.T) {
-	for _, code := range []string{
-		"KH", // 柬埔寨
-	} {
-		flag := emojiflag.GetFlag(code)
-		t.Logf("%s %s", code, flag)
-	}
 }
 
 func TestGetCountryCode(t *testing.T) {

@@ -48,7 +48,7 @@ var (
 		TFO:      true,
 	}
 	unlockEMBYServer = Node{
-		Name:           emoji.Joystick.String() + "CrackEmbyGo",
+		Name:           emoji.Joystick.String() + "Crack Emby",
 		Server:         "34.92.170.135",
 		Port:           strconv.Itoa(29967),
 		Type:           "http",

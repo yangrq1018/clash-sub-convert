@@ -90,7 +90,7 @@ func setHeader(res *http.Response, writer http.ResponseWriter, attachment bool) 
 	for k, v := range res.Header {
 		// 复制流量使用情况的请求头
 		switch k {
-		case "Subscription-Userinfo", "Content-Type":
+		case "Subscription-Userinfo":
 			writer.Header().Set(k, v[0])
 		case "Content-Disposition":
 			if attachment {
@@ -100,7 +100,6 @@ func setHeader(res *http.Response, writer http.ResponseWriter, attachment bool) 
 			}
 		}
 	}
-	writer.Header().Set("Content-Type", "application/x-yaml")
 }
 
 func main() {
@@ -126,7 +125,7 @@ func main() {
 				_ = res.Body.Close()
 			}()
 		}
-		setHeader(res, c.Response().Writer, false)
+
 		var remote sub.ClashSub
 		switch subType {
 		case "clash", "":
@@ -200,7 +199,7 @@ func main() {
 		}
 
 		setHeader(res, c.Response(), false)
-		if err = c.Stream(200, "application/x-yaml", body); err != nil {
+		if err = c.Stream(200, "application/octet-stream; charset=utf-8", body); err != nil {
 			return err
 		}
 		log.WithFields(log.Fields{
