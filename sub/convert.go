@@ -129,6 +129,7 @@ var (
 		Proxies: []string{
 			DIRECT,
 			grand().Name,
+			selfHosted.Name,
 		},
 	}
 	apple = ProxyGroup{
@@ -204,6 +205,11 @@ var (
 		DIRECT,
 		grand().Name,
 	)
+	minecraft = selectGroup(
+		emoji.Rock.String()+"Minecraft",
+		DIRECT,
+		grand().Name,
+	)
 	streamMedia = []struct {
 		mediaKey  string
 		countries []countries.CountryCode
@@ -246,6 +252,9 @@ var (
 	RulesSpecial = []Rule{
 		DomainRule("cip.cc", ipCheck),
 		DomainRule("ipinfo.io", ipCheck),
+	}
+	RulesMinecraft = []Rule{
+		DomainKeyWordRule("minecraft", minecraft),
 	}
 )
 
@@ -570,6 +579,7 @@ func Rewrite(remote ClashSub, out io.Writer, proc ...Processor) error {
 		an,
 		reject,
 		rest,
+		minecraft,
 		apple,
 		embyGroup,
 		telegram,
@@ -592,6 +602,7 @@ func Rewrite(remote ClashSub, out io.Writer, proc ...Processor) error {
 		RulesEmby,
 		RulesProxyConverterRules,
 		RulesSpecial,
+		RulesMinecraft,
 	} {
 		rules = append(rules, x...)
 	}
