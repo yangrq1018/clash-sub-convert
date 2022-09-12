@@ -22,7 +22,6 @@ const (
 	REJECT = "REJECT"
 )
 
-// 1 country CN, 2 country offset, 3 country code
 var (
 	countriesNeeded = []countries.CountryCode{
 		countries.HK,        // 香港
@@ -32,6 +31,19 @@ var (
 		countries.US,        // 美国
 		countries.Germany,   // 德国
 		countries.BE,        // 比利时
+		countries.KG,        // 吉尔吉斯斯坦
+		countries.IS,        // 冰岛
+		countries.LT,        // 立陶宛
+		countries.VN,        // 越南
+		countries.MN,        // 蒙古
+		countries.AE,        // 阿联酋
+		countries.CZ,        // 捷克
+		countries.AD,        // 安道尔
+		countries.BG,        // 保加利亚
+		countries.MD,        // 摩尔多瓦
+		countries.RE,        // 法属留尼汪
+		countries.PA,        // 巴拿马
+		countries.MU,        // 毛里求斯
 	}
 )
 
@@ -108,13 +120,32 @@ func allNodes(remote ClashSub) ProxyGroup {
 
 // groups
 var (
-	selfHosted = ProxyGroup{
-		Name: "Self host servers",
-		Type: "select",
-		Proxies: []string{
-			selfHostedServer1HK.Name,
-		},
-	}
+	selfHosted = selectGroup("Self host servers", selfHostedServer1HK.Name)
+	uncommon   = selectGroup("小众节点",
+		countryGroup(countries.KG),
+		countryGroup(countries.IS),
+		countryGroup(countries.LT),
+		countryGroup(countries.VN),
+		countryGroup(countries.MN),
+		countryGroup(countries.AE),
+		countryGroup(countries.CZ),
+		countryGroup(countries.AD),
+		countryGroup(countries.BG),
+		countryGroup(countries.MD),
+		countryGroup(countries.RE),
+		countryGroup(countries.PA),
+		countryGroup(countries.MU),
+	)
+	xiaohongshu = selectGroup("小红书",
+		DIRECT,
+		uncommon.Name,
+		grand().Name,
+	)
+	zhihu = selectGroup("知乎",
+		DIRECT,
+		uncommon.Name,
+		grand().Name,
+	)
 	// Grand proxy group that contains all proxies
 	telegram = urlTestGroup(
 		emoji.Airplane.String()+"Telegram",
@@ -123,40 +154,28 @@ var (
 		countryGroup(countries.SG),
 		countryGroup(countries.US),
 	)
-	rest = ProxyGroup{
-		Name: emoji.Fish.String() + "漏网之鱼",
-		Type: "select",
-		Proxies: []string{
-			DIRECT,
-			grand().Name,
-			selfHosted.Name,
-		},
-	}
-	apple = ProxyGroup{
-		Name: emoji.RedApple.String() + "Apple",
-		Type: "select",
-		Proxies: []string{
-			DIRECT,
-			grand().Name,
-		},
-	}
-	embyGroup = ProxyGroup{
-		Name: emoji.PuzzlePiece.String() + "Emby",
-		Type: "select",
-		Proxies: []string{
-			DIRECT,
-			countryGroup(countries.HK),
-			unlockEMBYServer.Name,
-		},
-	}
-	proxyConverter = ProxyGroup{
-		Name: emoji.Sparkles.String() + "订阅转换",
-		Type: "select",
-		Proxies: []string{
-			DIRECT,
-			proxyConverterServerLocal.Name,
-		},
-	}
+	rest = selectGroup(
+		emoji.Fish.String()+"漏网之鱼",
+		DIRECT,
+		grand().Name,
+		selfHosted.Name,
+	)
+	apple = selectGroup(
+		emoji.RedApple.String()+"Apple",
+		DIRECT,
+		grand().Name,
+	)
+	embyGroup = selectGroup(
+		emoji.PuzzlePiece.String()+"Emby",
+		DIRECT,
+		countryGroup(countries.HK),
+		unlockEMBYServer.Name,
+	)
+	proxyConverter = selectGroup(
+		emoji.Sparkles.String()+"订阅转换",
+		DIRECT,
+		proxyConverterServerLocal.Name,
+	)
 	microsoft = selectGroup(
 		emoji.DesktopComputer.String()+"Microsoft",
 		countryGroup(countries.HK),
@@ -255,6 +274,12 @@ var (
 	}
 	RulesMinecraft = []Rule{
 		DomainKeyWordRule("minecraft", minecraft),
+	}
+	RulesXiaohongshu = []Rule{
+		DomainSuffixRule("xiaohongshu.com", xiaohongshu),
+	}
+	RulesZhihu = []Rule{
+		DomainSuffixRule("zhihu.com", zhihu),
 	}
 )
 
@@ -592,6 +617,9 @@ func Rewrite(remote ClashSub, out io.Writer, proc ...Processor) error {
 		proxyConverter,
 		ipCheck,
 		selfHosted,
+		xiaohongshu,
+		zhihu,
+		uncommon,
 	}
 
 	/* RULES */
@@ -603,6 +631,8 @@ func Rewrite(remote ClashSub, out io.Writer, proc ...Processor) error {
 		RulesProxyConverterRules,
 		RulesSpecial,
 		RulesMinecraft,
+		RulesXiaohongshu,
+		RulesZhihu,
 	} {
 		rules = append(rules, x...)
 	}
