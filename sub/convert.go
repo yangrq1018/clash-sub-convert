@@ -23,6 +23,7 @@ const (
 )
 
 var (
+	// Make sure every code is provided in upstream sub!!
 	countriesNeeded = []countries.CountryCode{
 		countries.HK,        // 香港
 		countries.TW,        // 台湾
@@ -50,12 +51,22 @@ var (
 // servers
 var (
 	selfHostedServer1HK = Node{
-		Name:     "Self-hosted Server #1 (HK)",
+		Name:     "自建服务器1香港",
 		Type:     "ss",
 		Server:   "34.92.170.135",
 		Port:     "8388",
 		Cipher:   "chacha20-ietf-poly1305",
 		Password: "MP9e4JJqdkdx",
+		UDP:      true,
+		TFO:      true,
+	}
+	selfHostedServer2SZ = Node{
+		Name:     "自建服务器2深圳",
+		Type:     "ss",
+		Server:   "39.108.10.209",
+		Port:     "8388",
+		Cipher:   "chacha20-ietf-poly1305",
+		Password: "HX1J7MYQ7H5Y",
 		UDP:      true,
 		TFO:      true,
 	}
@@ -78,7 +89,7 @@ var (
 		UDP:            false,
 	}
 	// add every node above here
-	userDefinedNodes = []Node{unlockEMBYServer, proxyConverterServerLocal, selfHostedServer1HK}
+	userDefinedNodes = []Node{unlockEMBYServer, proxyConverterServerLocal, selfHostedServer1HK, selfHostedServer2SZ}
 )
 
 func urlTestGroup(name string, interval time.Duration, proxies ...string) ProxyGroup {
@@ -120,8 +131,11 @@ func allNodes(remote ClashSub) ProxyGroup {
 
 // groups
 var (
-	selfHosted = selectGroup("Self host servers", selfHostedServer1HK.Name)
-	uncommon   = selectGroup("小众节点",
+	selfHosted = selectGroup("Self host servers",
+		selfHostedServer1HK.Name,
+		selfHostedServer2SZ.Name,
+	)
+	uncommon = selectGroup("小众节点",
 		countryGroup(countries.KG),
 		countryGroup(countries.IS),
 		countryGroup(countries.LT),
@@ -144,6 +158,11 @@ var (
 	zhihu = selectGroup("知乎",
 		DIRECT,
 		uncommon.Name,
+		grand().Name,
+	)
+	qq = selectGroup("QQ",
+		DIRECT,
+		selfHosted.Name,
 		grand().Name,
 	)
 	// Grand proxy group that contains all proxies
@@ -280,6 +299,9 @@ var (
 	}
 	RulesZhihu = []Rule{
 		DomainSuffixRule("zhihu.com", zhihu),
+	}
+	RulesQQ = []Rule{
+		DomainSuffixRule("qq.com", qq),
 	}
 )
 
@@ -584,6 +606,10 @@ func groupByCountries(remote ClashSub, gr *ProxyGroup) (countryGroups []ProxyGro
 		for _, server := range countryGroupMap[c] {
 			group.Proxies = append(group.Proxies, server.Name)
 		}
+		if len(group.Proxies) == 0 {
+			log.Printf("no nodes matched for country %s, put a DIRECT here", c)
+			group.Proxies = []string{DIRECT}
+		}
 		countryGroups = append(countryGroups, group)
 		gr.Proxies = append(gr.Proxies, group.Name)
 	}
@@ -619,6 +645,7 @@ func Rewrite(remote ClashSub, out io.Writer, proc ...Processor) error {
 		selfHosted,
 		xiaohongshu,
 		zhihu,
+		qq,
 		uncommon,
 	}
 
@@ -633,6 +660,7 @@ func Rewrite(remote ClashSub, out io.Writer, proc ...Processor) error {
 		RulesMinecraft,
 		RulesXiaohongshu,
 		RulesZhihu,
+		RulesQQ,
 	} {
 		rules = append(rules, x...)
 	}
