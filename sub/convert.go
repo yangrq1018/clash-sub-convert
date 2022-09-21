@@ -42,9 +42,9 @@ var (
 		countries.AD,        // 安道尔
 		countries.BG,        // 保加利亚
 		countries.MD,        // 摩尔多瓦
-		countries.RE,        // 法属留尼汪
+		countries.RE,        // 法属留尼汪, not available since 20220921
 		countries.PA,        // 巴拿马
-		countries.MU,        // 毛里求斯
+		countries.MU,        // 毛里求斯, not available since 20220921
 	}
 )
 
@@ -617,7 +617,9 @@ func groupByCountries(remote ClashSub, gr *ProxyGroup) (countryGroups []ProxyGro
 }
 
 func Rewrite(remote ClashSub, out io.Writer, proc ...Processor) error {
-	prependEmoji(&remote)
+	// since 20220921, TAG node names alreay have emoji prefix
+	// no prefixEmoji needed
+
 	/* PROXY GROUPS */
 	gr := grand()
 	an := allNodes(remote)
@@ -769,7 +771,7 @@ func NewSub() ClashSub {
 
 var anyTwoCharCode = regexp.MustCompile(".*([A-Za-z]{2})")
 
-func prependEmoji(sub *ClashSub) {
+func prefixEmoji(sub *ClashSub) {
 	for i := range sub.Proxies {
 		name := sub.Proxies[i].Name
 		var countryCode string
