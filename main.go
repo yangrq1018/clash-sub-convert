@@ -192,7 +192,10 @@ func main() {
 		if c.QueryParam("pass") == "true" {
 			err = sub.Pass(remote, body, processors...)
 		} else {
-			err = sub.Rewrite(remote, body, processors...)
+			err = sub.Rewrite(remote, body,
+				c.QueryParam("empty"),
+				c.QueryParam("media") == "true",
+				processors...)
 		}
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
