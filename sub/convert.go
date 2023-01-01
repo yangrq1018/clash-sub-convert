@@ -22,31 +22,65 @@ const (
 	REJECT = "REJECT"
 )
 
+type priority int
+
+const (
+	Required priority = iota
+	Optional
+)
+
 var (
 	// Make sure every code is provided in upstream sub!!
-	countriesNeeded = []countries.CountryCode{
-		countries.HK,        // 香港
-		countries.TW,        // 台湾
-		countries.JP,        // 日本
-		countries.Singapore, // 新加坡
-		countries.US,        // 美国
-		countries.Germany,   // 德国
-		countries.BE,        // 比利时
-		countries.KG,        // 吉尔吉斯斯坦
-		countries.IS,        // 冰岛
-		countries.LT,        // 立陶宛
-		countries.VN,        // 越南
-		countries.MN,        // 蒙古
-		countries.AE,        // 阿联酋
-		countries.CZ,        // 捷克
-		countries.AD,        // 安道尔
-		countries.BG,        // 保加利亚
-		countries.MD,        // 摩尔多瓦
-		countries.RE,        // 法属留尼汪, not available since 20220921
-		countries.PA,        // 巴拿马
-		countries.MU,        // 毛里求斯, not available since 20220921
+	countriesNeeded = []struct {
+		countries.CountryCode
+		priority
+	}{
+		{countries.HK, Required},            // 香港
+		{countries.TW, Required},            // 台湾
+		{countries.JP, Required},            // 日本
+		{countries.Singapore, Required},     // 新加坡
+		{countries.US, Required},            // 美国
+		{countries.UnitedKingdom, Required}, // 英国
+		{countries.France, Required},        // 法国
+		{countries.Germany, Required},       // 德国
+
+		// optional
+		{countries.Korea, Optional}, // 韩国
+		{countries.BE, Optional},    // 比利时
+		{countries.KG, Optional},    // 吉尔吉斯斯坦
+		{countries.IS, Optional},    // 冰岛
+		{countries.LT, Optional},    // 立陶宛
+		{countries.VN, Optional},    // 越南
+		{countries.MN, Optional},    // 蒙古
+		{countries.AE, Optional},    // 阿联酋
+		{countries.CZ, Optional},    // 捷克
+		{countries.AD, Optional},    // 安道尔
+		{countries.BG, Optional},    // 保加利亚
+		{countries.MD, Optional},    // 摩尔多瓦
+		{countries.PA, Optional},    // 巴拿马
 	}
 )
+
+func availableOptionalCountries(remote ClashSub) (codes []countries.CountryCode) {
+	var countryGroupMap = make(map[countries.CountryCode][]Node)
+	for _, node := range remote.Proxies {
+		country := extractCountryFromNodeName(node.Name)
+		countryGroupMap[country] = append(countryGroupMap[country], node)
+	}
+
+	for _, c := range countriesNeeded {
+		// url-test or select? Though the need is rare, sometimes I want
+		// to use a specific node in the country
+		var proxies []string
+		for _, server := range countryGroupMap[c.CountryCode] {
+			proxies = append(proxies, server.Name)
+		}
+		if len(proxies) > 0 && c.priority == Optional {
+			codes = append(codes, c.CountryCode)
+		}
+	}
+	return
+}
 
 // servers
 var (
@@ -135,21 +169,7 @@ var (
 		selfHostedServer1HK.Name,
 		selfHostedServer2SZ.Name,
 	)
-	uncommon = selectGroup("小众节点",
-		countryGroup(countries.KG),
-		countryGroup(countries.IS),
-		countryGroup(countries.LT),
-		countryGroup(countries.VN),
-		countryGroup(countries.MN),
-		countryGroup(countries.AE),
-		countryGroup(countries.CZ),
-		countryGroup(countries.AD),
-		countryGroup(countries.BG),
-		countryGroup(countries.MD),
-		countryGroup(countries.RE),
-		countryGroup(countries.PA),
-		countryGroup(countries.MU),
-	)
+	uncommon    = selectGroup("小众节点")
 	xiaohongshu = selectGroup("小红书",
 		DIRECT,
 		uncommon.Name,
@@ -610,15 +630,15 @@ func groupByCountries(remote ClashSub, gr *ProxyGroup, dealWithEmptyGroup string
 	for _, c := range countriesNeeded {
 		// url-test or select? Though the need is rare, sometimes I want
 		// to use a specific node in the country
-		group := selectGroup(countryGroup(c))
-		for _, server := range countryGroupMap[c] {
+		group := selectGroup(countryGroup(c.CountryCode))
+		for _, server := range countryGroupMap[c.CountryCode] {
 			group.Proxies = append(group.Proxies, server.Name)
 		}
 		if len(group.Proxies) == 0 {
-			if dealWithEmptyGroup == "placeholder" {
+			if dealWithEmptyGroup == "placeholder" || c.priority == Required {
 				log.Printf("no nodes matched for country %s, put a DIRECT here", c)
 				group.Proxies = []string{DIRECT}
-			} else if dealWithEmptyGroup == "drop" {
+			} else if dealWithEmptyGroup == "drop" && c.priority == Optional {
 				continue
 			}
 		}
@@ -636,10 +656,20 @@ func Rewrite(remote ClashSub, out io.Writer, emptyPolicy string, ruleStreamMedia
 	gr := grand()
 	an := allNodes(remote)
 	if emptyPolicy == "" {
-		emptyPolicy = "placeholder"
+		emptyPolicy = "drop"
 	}
 	countryGroups := groupByCountries(remote, &gr, emptyPolicy)
 	gr.Proxies = append(gr.Proxies, an.Name, selfHosted.Name)
+
+	// make a copy
+	_uncommon := uncommon
+	_uncommon.Proxies = nil
+	for _, c := range availableOptionalCountries(remote) {
+		_uncommon.Proxies = append(_uncommon.Proxies, countryGroup(c))
+	}
+	if len(_uncommon.Proxies) == 0 {
+		_uncommon.Proxies = []string{DIRECT}
+	}
 
 	// 自定义组
 	proxyGroups := []ProxyGroup{
@@ -664,7 +694,7 @@ func Rewrite(remote ClashSub, out io.Writer, emptyPolicy string, ruleStreamMedia
 		xiaohongshu,
 		zhihu,
 		qq,
-		uncommon,
+		_uncommon,
 	}
 
 	/* RULES */
@@ -788,6 +818,8 @@ func NewSub() ClashSub {
 }
 
 var anyTwoCharCode = regexp.MustCompile(".*([A-Za-z]{2})")
+
+// brutal way to recognize geo names in chinese
 var chineseCodeMap = map[string]string{
 	"台湾": "TW",
 	"日本": "JP",
