@@ -165,7 +165,7 @@ func allNodes(remote ClashSub) ProxyGroup {
 
 // groups
 var (
-	selfHosted = selectGroup("Self host servers",
+	selfHosted = selectGroup("自建服务器",
 		selfHostedServer1HK.Name,
 		selfHostedServer2SZ.Name,
 	)

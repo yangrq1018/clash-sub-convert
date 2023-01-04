@@ -1,6 +1,6 @@
 hosts:
   # 内网域名寻址,指向NGINX服务器
-  "*.xuanlingasset.com": "10.168.1.185"
+  # "*.xuanlingasset.com": "10.168.1.185"
 rules:
   IPCIDR:
     - "10.168.1.0/24:DIRECT"
