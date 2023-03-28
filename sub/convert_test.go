@@ -21,7 +21,7 @@ func TestRewrite(t *testing.T) {
 	require.NoError(t, err)
 	remote, err := decodeClashConfig(res)
 	require.NoError(t, err)
-	assert.NoError(t, Rewrite(remote, io.Discard))
+	assert.NoError(t, Rewrite(remote, io.Discard, "", false))
 }
 
 func TestGetCountryCode(t *testing.T) {
