@@ -259,6 +259,10 @@ var (
 		DIRECT,
 		countryGroup(countries.Japan),
 	)
+	openAIGroup = selectGroup(
+		emoji.GlobeShowingEuropeAfrica.String()+"Open AI",
+		countryGroup(countries.Singapore),
+	)
 	reject = selectGroup(
 		emoji.NoEntry.String()+"垃圾拦截",
 		REJECT,
@@ -304,6 +308,9 @@ var (
 		DomainSuffixRule("nintendo.net", switchGroup),
 		DomainSuffixRule("nintendo.com", switchGroup),
 		DomainSuffixRule("s3-us-west-2.amazonaws.com", switchGroup),
+	}
+	RulesOpenAI = []Rule{
+		DomainSuffixRule("openai.com", openAIGroup),
 	}
 	RulesEmby = []Rule{
 		DomainSuffixRule("mb3admin.com", embyUnlock),
@@ -683,6 +690,7 @@ func Rewrite(remote ClashSub, out io.Writer, emptyPolicy string, ruleStreamMedia
 		embyTagNewFlavor,
 		telegram,
 		switchGroup,
+		openAIGroup,
 		github,
 		microsoft,
 		steam,
@@ -702,6 +710,7 @@ func Rewrite(remote ClashSub, out io.Writer, emptyPolicy string, ruleStreamMedia
 
 	for _, x := range [][]Rule{
 		RulesNintendo,
+		RulesOpenAI,
 		RulesEmby,
 		RulesProxyConverterRules,
 		RulesSpecial,
