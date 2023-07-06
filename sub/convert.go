@@ -479,10 +479,9 @@ func extractCountryFromNodeName(node string) countries.CountryCode {
 // https://github.com/Loyalsoldier/clash-rules
 func loyalSoldierClashRules(key string) RuleProvider {
 	return RuleProvider{
-		Type:     "http",
-		URL:      "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/" + key + ".txt",
-		Path:     "./ruleset/" + key + ".yaml",
-		Interval: 86400,
+		Type: "http",
+		URL:  "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/" + key + ".txt",
+		Path: "./ruleset/" + key + ".yaml",
 	}
 }
 
@@ -537,7 +536,6 @@ func semporiaClashXRules(key string) RuleProvider {
 		Behavior: "classical",
 		Path:     "./ruleset/" + strings.ToLower(key) + ".yaml",
 		URL:      "https://raw.githubusercontent.com/Semporia/Clash/master/Rule/" + key + ".yaml",
-		Interval: 3600,
 	}
 }
 
@@ -678,7 +676,7 @@ func Rewrite(remote ClashSub, out io.Writer, emptyPolicy string, ruleStreamMedia
 		_uncommon.Proxies = []string{DIRECT}
 	}
 
-	// 自定义组
+	// my groups
 	proxyGroups := []ProxyGroup{
 		gr,
 		an,
