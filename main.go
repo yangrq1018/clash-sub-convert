@@ -195,7 +195,7 @@ func main() {
 			err = sub.Rewrite(remote, body,
 				c.QueryParam("empty"),
 				c.QueryParam("media") == "true",
-				processors...
+				processors...,
 			)
 		}
 		if err != nil {

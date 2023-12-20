@@ -45,19 +45,20 @@ var (
 		{countries.Germany, Required},       // 德国
 
 		// optional
-		{countries.Korea, Optional}, // 韩国
-		{countries.BE, Optional},    // 比利时
-		{countries.KG, Optional},    // 吉尔吉斯斯坦
-		{countries.IS, Optional},    // 冰岛
-		{countries.LT, Optional},    // 立陶宛
-		{countries.VN, Optional},    // 越南
-		{countries.MN, Optional},    // 蒙古
-		{countries.AE, Optional},    // 阿联酋
-		{countries.CZ, Optional},    // 捷克
-		{countries.AD, Optional},    // 安道尔
-		{countries.BG, Optional},    // 保加利亚
-		{countries.MD, Optional},    // 摩尔多瓦
-		{countries.PA, Optional},    // 巴拿马
+		{countries.Thailand, Optional}, // 泰国
+		{countries.Korea, Optional},    // 韩国
+		{countries.BE, Optional},       // 比利时
+		{countries.KG, Optional},       // 吉尔吉斯斯坦
+		{countries.IS, Optional},       // 冰岛
+		{countries.LT, Optional},       // 立陶宛
+		{countries.VN, Optional},       // 越南
+		{countries.MN, Optional},       // 蒙古
+		{countries.AE, Optional},       // 阿联酋
+		{countries.CZ, Optional},       // 捷克
+		{countries.AD, Optional},       // 安道尔
+		{countries.BG, Optional},       // 保加利亚
+		{countries.MD, Optional},       // 摩尔多瓦
+		{countries.PA, Optional},       // 巴拿马
 	}
 )
 
@@ -296,7 +297,7 @@ var (
 		},
 		{
 			mediaKey:  "Bilibili",
-			countries: []countries.CountryCode{countries.TW, countries.HK},
+			countries: []countries.CountryCode{countries.Taiwan, countries.HongKong, countries.Thailand},
 		},
 	}
 )
