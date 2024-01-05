@@ -183,7 +183,10 @@ func main() {
 			}
 		}
 		body := bytes.NewBuffer(nil)
-
+		r := c.Request()
+		topLine := r.Host + r.URL.String()
+		topLine = "# " + topLine + "\n"
+		body.WriteString(topLine)
 		processors := copyFileProcessors()
 		if externalController := c.QueryParam("controller"); externalController != "" {
 			processors = append(processors, sub.SetExternalController(externalController))
