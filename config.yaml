@@ -1,7 +1,8 @@
 hosts:
   # 内网域名寻址,指向NGINX服务器
-  # "*.xuanlingasset.com": "10.168.1.185"
+  # "*.yourcompany.com": "10.168.1.185"
 rules:
   IPCIDR:
-    - "10.168.1.0/24:DIRECT"
+    # do not proxy lan addresses
+    # - "10.168.1.0/24:DIRECT"
     - "127.0.0.1/32:DIRECT"

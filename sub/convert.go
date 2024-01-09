@@ -176,6 +176,13 @@ var (
 		uncommon.Name,
 		grand().Name,
 	)
+  reddit = selectGroup("Reddit",
+    DIRECT,
+    grand().Name,
+		countryGroup(countries.HK),
+    countryGroup(countries.TW),
+		countryGroup(countries.JP),
+  )
 	zhihu = selectGroup("知乎",
 		DIRECT,
 		uncommon.Name,
@@ -331,6 +338,9 @@ var (
 	RulesXiaohongshu = []Rule{
 		DomainSuffixRule("xiaohongshu.com", xiaohongshu),
 	}
+  RulesReddit = []Rule{
+    DomainSuffixRule("reddit.com", reddit),
+  }
 	RulesZhihu = []Rule{
 		DomainSuffixRule("zhihu.com", zhihu),
 	}
@@ -699,6 +709,7 @@ func Rewrite(remote ClashSub, out io.Writer, emptyPolicy string, ruleStreamMedia
 		ipCheck,
 		selfHosted,
 		xiaohongshu,
+    reddit,
 		zhihu,
 		qq,
 		_uncommon,
@@ -715,6 +726,7 @@ func Rewrite(remote ClashSub, out io.Writer, emptyPolicy string, ruleStreamMedia
 		RulesSpecial,
 		RulesMinecraft,
 		RulesXiaohongshu,
+    RulesReddit,
 		RulesZhihu,
 		RulesQQ,
 	} {
