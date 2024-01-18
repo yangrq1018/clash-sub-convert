@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -27,39 +26,6 @@ type priority int
 const (
 	Required priority = iota
 	Optional
-)
-
-var (
-	// Make sure every code is provided in upstream sub!!
-	countriesNeeded = []struct {
-		countries.CountryCode
-		priority
-	}{
-		{countries.HK, Required},            // 香港
-		{countries.TW, Required},            // 台湾
-		{countries.JP, Required},            // 日本
-		{countries.Singapore, Required},     // 新加坡
-		{countries.US, Required},            // 美国
-		{countries.UnitedKingdom, Required}, // 英国
-		{countries.France, Required},        // 法国
-		{countries.Germany, Required},       // 德国
-
-		// optional
-		{countries.Thailand, Optional}, // 泰国
-		{countries.Korea, Optional},    // 韩国
-		{countries.BE, Optional},       // 比利时
-		{countries.KG, Optional},       // 吉尔吉斯斯坦
-		{countries.IS, Optional},       // 冰岛
-		{countries.LT, Optional},       // 立陶宛
-		{countries.VN, Optional},       // 越南
-		{countries.MN, Optional},       // 蒙古
-		{countries.AE, Optional},       // 阿联酋
-		{countries.CZ, Optional},       // 捷克
-		{countries.AD, Optional},       // 安道尔
-		{countries.BG, Optional},       // 保加利亚
-		{countries.MD, Optional},       // 摩尔多瓦
-		{countries.PA, Optional},       // 巴拿马
-	}
 )
 
 func availableOptionalCountries(remote ClashSub) (codes []countries.CountryCode) {
@@ -82,50 +48,6 @@ func availableOptionalCountries(remote ClashSub) (codes []countries.CountryCode)
 	}
 	return
 }
-
-// servers
-var (
-	selfHostedServer1HK = Node{
-		Name:     "自建服务器1香港",
-		Type:     "ss",
-		Server:   "34.92.170.135",
-		Port:     "8388",
-		Cipher:   "chacha20-ietf-poly1305",
-		Password: "MP9e4JJqdkdx",
-		UDP:      true,
-		TFO:      true,
-	}
-	selfHostedServer2SZ = Node{
-		Name:     "自建服务器2深圳",
-		Type:     "ss",
-		Server:   "39.108.10.209",
-		Port:     "8388",
-		Cipher:   "chacha20-ietf-poly1305",
-		Password: "HX1J7MYQ7H5Y",
-		UDP:      true,
-		TFO:      true,
-	}
-	unlockEMBYServer = Node{
-		Name:           emoji.Joystick.String() + "Crack Emby",
-		Server:         "34.92.170.135",
-		Port:           strconv.Itoa(29967),
-		Type:           "http",
-		TLS:            false,
-		SkipCertVerify: false,
-		UDP:            true,
-	}
-	proxyConverterServerLocal = Node{
-		Name:           emoji.Sparkles.String() + "Proxy Convert (Local)",
-		Server:         "127.0.0.1",
-		Port:           "39923",
-		Type:           "http",
-		TLS:            false,
-		SkipCertVerify: false,
-		UDP:            false,
-	}
-	// add every node above here
-	userDefinedNodes = []Node{unlockEMBYServer, proxyConverterServerLocal, selfHostedServer1HK, selfHostedServer2SZ}
-)
 
 func urlTestGroup(name string, interval time.Duration, proxies ...string) ProxyGroup {
 	return ProxyGroup{
@@ -167,7 +89,6 @@ func allNodes(remote ClashSub) ProxyGroup {
 // groups
 var (
 	selfHosted = selectGroup("自建服务器",
-		selfHostedServer1HK.Name,
 		selfHostedServer2SZ.Name,
 	)
 	uncommon    = selectGroup("小众节点")
@@ -176,13 +97,13 @@ var (
 		uncommon.Name,
 		grand().Name,
 	)
-  reddit = selectGroup("Reddit",
-    DIRECT,
-    grand().Name,
+	reddit = selectGroup("Reddit",
+		DIRECT,
+		grand().Name,
 		countryGroup(countries.HK),
-    countryGroup(countries.TW),
+		countryGroup(countries.TW),
 		countryGroup(countries.JP),
-  )
+	)
 	zhihu = selectGroup("知乎",
 		DIRECT,
 		uncommon.Name,
@@ -338,9 +259,9 @@ var (
 	RulesXiaohongshu = []Rule{
 		DomainSuffixRule("xiaohongshu.com", xiaohongshu),
 	}
-  RulesReddit = []Rule{
-    DomainSuffixRule("reddit.com", reddit),
-  }
+	RulesReddit = []Rule{
+		DomainSuffixRule("reddit.com", reddit),
+	}
 	RulesZhihu = []Rule{
 		DomainSuffixRule("zhihu.com", zhihu),
 	}
@@ -709,7 +630,7 @@ func Rewrite(remote ClashSub, out io.Writer, emptyPolicy string, ruleStreamMedia
 		ipCheck,
 		selfHosted,
 		xiaohongshu,
-    reddit,
+		reddit,
 		zhihu,
 		qq,
 		_uncommon,
@@ -726,7 +647,7 @@ func Rewrite(remote ClashSub, out io.Writer, emptyPolicy string, ruleStreamMedia
 		RulesSpecial,
 		RulesMinecraft,
 		RulesXiaohongshu,
-    RulesReddit,
+		RulesReddit,
 		RulesZhihu,
 		RulesQQ,
 	} {
