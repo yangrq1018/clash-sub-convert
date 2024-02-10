@@ -86,46 +86,6 @@ func allNodes(remote ClashSub) ProxyGroup {
 	return an
 }
 
-// rules
-var (
-	RulesNintendo = []Rule{
-		DomainSuffixRule("stat.ink", switchGroup),
-		DomainSuffixRule("nintendo.net", switchGroup),
-		DomainSuffixRule("nintendo.com", switchGroup),
-		DomainSuffixRule("s3-us-west-2.amazonaws.com", switchGroup),
-	}
-	RulesOpenAI = []Rule{
-		DomainSuffixRule("openai.com", openAIGroup),
-	}
-	RulesEmby = []Rule{
-		DomainSuffixRule("mb3admin.com", embyUnlock),
-		DomainSuffixRule("tagemby.embylianmeng.com", embyTagNewFlavor),
-	}
-	RulesProxyConverterRules = []Rule{
-		DomainRule("subscribe.hlasw.com", proxyConverter),
-		DomainRule("subscribe.tagonline.asia", proxyConverter),
-	}
-	RulesSpecial = []Rule{
-		DomainRule("cip.cc", ipCheck),
-		DomainRule("ipinfo.io", ipCheck),
-	}
-	RulesMinecraft = []Rule{
-		DomainKeyWordRule("minecraft", minecraft),
-	}
-	RulesXiaohongshu = []Rule{
-		DomainSuffixRule("xiaohongshu.com", xiaohongshu),
-	}
-	RulesReddit = []Rule{
-		DomainSuffixRule("reddit.com", reddit),
-	}
-	RulesZhihu = []Rule{
-		DomainSuffixRule("zhihu.com", zhihu),
-	}
-	RulesQQ = []Rule{
-		DomainSuffixRule("qq.com", qq),
-	}
-)
-
 func DomainRule(domain string, group ProxyGroup) Rule {
 	return Rule("DOMAIN," + domain + "," + group.Name)
 }
@@ -464,7 +424,7 @@ func Rewrite(remote ClashSub, out io.Writer, emptyPolicy string, ruleStreamMedia
 		_uncommon.Proxies = []string{DIRECT}
 	}
 
-	// my groups
+	// The order of groups
 	proxyGroups := []ProxyGroup{
 		gr,
 		an,
@@ -489,6 +449,7 @@ func Rewrite(remote ClashSub, out io.Writer, emptyPolicy string, ruleStreamMedia
 		reddit,
 		zhihu,
 		qq,
+		spotify,
 		_uncommon,
 	}
 
@@ -506,6 +467,7 @@ func Rewrite(remote ClashSub, out io.Writer, emptyPolicy string, ruleStreamMedia
 		RulesReddit,
 		RulesZhihu,
 		RulesQQ,
+		RulesSpotify,
 	} {
 		rules = append(rules, x...)
 	}
