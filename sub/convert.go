@@ -549,6 +549,10 @@ func Rewrite(remote ClashSub, out io.Writer, emptyPolicy string, ruleStreamMedia
 	return encoder.Encode(&config)
 }
 
+// NewSub creates a default config
+// The DNS server by default listens on :7853
+// rather than :53, which could be used by
+// systemd-resolved.
 func NewSub() ClashSub {
 	return ClashSub{
 		MixedPort:          7890,
@@ -561,16 +565,13 @@ func NewSub() ClashSub {
 			StoreSelected: true,
 		},
 		DNS: &DNSSetting{
-			Enable:       true,
+			Enable:       false,
 			EnhancedMode: "fake-ip", // 虚拟IP模式
-			Listen:       "0.0.0.0:53",
+			Listen:       "0.0.0.0:7853",
 			Nameserver: []string{
-				// public DNS servers
-				"223.5.5.5",       // alibaba
 				"8.8.8.8",         // google
-				"114.114.114.114", // 114
 			},
-			IPv6:        true,
+			IPv6:        false,
 			FakeIPRange: "198.19.0.1/16", // 虚拟IP段
 		},
 	}
