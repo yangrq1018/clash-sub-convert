@@ -68,13 +68,6 @@ func selectGroup(name string, proxies ...string) ProxyGroup {
 	}
 }
 
-func grand() ProxyGroup {
-	return ProxyGroup{
-		Name: emoji.Rocket.String() + "节点选择",
-		Type: "select",
-	}
-}
-
 func allNodes(remote ClashSub) ProxyGroup {
 	an := ProxyGroup{
 		Name: emoji.GlobeShowingAsiaAustralia.String() + "全部节点",
@@ -414,16 +407,6 @@ func Rewrite(remote ClashSub, out io.Writer, emptyPolicy string, ruleStreamMedia
 	countryGroups := groupByCountries(remote, &gr, emptyPolicy)
 	gr.Proxies = append(gr.Proxies, an.Name, selfHosted.Name)
 
-	// make a copy
-	_uncommon := uncommon
-	_uncommon.Proxies = nil
-	for _, c := range availableOptionalCountries(remote) {
-		_uncommon.Proxies = append(_uncommon.Proxies, countryGroup(c))
-	}
-	if len(_uncommon.Proxies) == 0 {
-		_uncommon.Proxies = []string{DIRECT}
-	}
-
 	// The order of groups
 	proxyGroups := []ProxyGroup{
 		gr,
@@ -450,7 +433,6 @@ func Rewrite(remote ClashSub, out io.Writer, emptyPolicy string, ruleStreamMedia
 		zhihu,
 		qq,
 		spotify,
-		_uncommon,
 	}
 
 	/* RULES */

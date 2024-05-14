@@ -7,20 +7,39 @@ import (
 	"github.com/enescakir/emoji"
 )
 
-// Groups
+func grand() ProxyGroup {
+	return ProxyGroup{
+		Name: emoji.Rocket.String() + "节点选择",
+		Type: "select",
+	}
+}
+
+// Core groups
+var (
+	reject = selectGroup(
+		emoji.NoEntry.String()+"垃圾拦截",
+		REJECT,
+		DIRECT,
+	)
+	rest = selectGroup(
+		emoji.Fish.String()+"漏网之鱼",
+		DIRECT,
+		grand().Name,
+	)
+)
+
+// App purpose groups
 var (
 	selfHosted = selectGroup("自建服务器",
 		selfHostedServer2SZ.Name,
 	)
-	uncommon = selectGroup("小众节点")
-	spotify  = selectGroup("Spotify",
+	spotify = selectGroup("Spotify",
 		DIRECT,
 		grand().Name,
 		countryGroup(countries.HK),
 	)
 	xiaohongshu = selectGroup("小红书",
 		DIRECT,
-		uncommon.Name,
 		grand().Name,
 	)
 	reddit = selectGroup("Reddit",
@@ -32,7 +51,6 @@ var (
 	)
 	zhihu = selectGroup("知乎",
 		DIRECT,
-		uncommon.Name,
 		grand().Name,
 	)
 	qq = selectGroup("QQ",
@@ -47,12 +65,6 @@ var (
 		countryGroup(countries.HK),
 		countryGroup(countries.SG),
 		countryGroup(countries.US),
-	)
-	rest = selectGroup(
-		emoji.Fish.String()+"漏网之鱼",
-		DIRECT,
-		grand().Name,
-		selfHosted.Name,
 	)
 	apple = selectGroup(
 		emoji.RedApple.String()+"Apple",
@@ -119,11 +131,6 @@ var (
 		emoji.GlobeShowingEuropeAfrica.String()+"Open AI",
 		countryGroup(countries.Singapore),
 		grand().Name,
-	)
-	reject = selectGroup(
-		emoji.NoEntry.String()+"垃圾拦截",
-		REJECT,
-		DIRECT,
 	)
 	ipCheck = selectGroup(
 		emoji.TelephoneReceiver.String()+"IP检查",
